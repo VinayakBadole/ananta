@@ -46,22 +46,11 @@
 }
 
 .video-loading::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  border: 3px solid rgba(236, 187, 79, 0.3);
-  border-top: 3px solid #ecbb4f;
-  border-radius: 50%;
-  animation: videoLoadingSpinner 1s linear infinite;
-  z-index: 10;
+  display: none; /* Hide the loading circle completely */
 }
 
 .video-loading::after {
-  content: 'Loading...';
+  /* content: 'Loading...'; */
   position: absolute;
   top: 60%;
   left: 50%;

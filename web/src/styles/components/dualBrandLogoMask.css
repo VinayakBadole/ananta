@@ -89,6 +89,7 @@
   object-fit: contain;
   filter: drop-shadow(0 0 20px rgba(236, 187, 79, 0.3));
   transition: filter 0.3s ease;
+  
 }
 
 .company-text {
@@ -355,3 +356,5 @@ body.dual-brand-complete {
     display: none !important;
   }
 }
+
+

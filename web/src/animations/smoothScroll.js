@@ -16,24 +16,28 @@ class SmoothScroll {
    */
   init(options = {}) {
     const defaultOptions = {
-      duration: 1.2,
+      duration: 0.8,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       gestureDirection: 'vertical',
       smooth: true,
-      mouseMultiplier: 1,
+      mouseMultiplier: 1.2,
       smoothTouch: false,
       touchMultiplier: 2,
       infinite: false,
+      lerp: 0.35,
+      wheelMultiplier: 1.2,
+      normalizeWheel: true,
+      // Anti-jitter settings
+      syncTouch: true,
+      syncTouchLerp: 0.1,
+      touchInertiaMultiplier: 3,
     };
 
     const config = { ...defaultOptions, ...options };
 
     this.lenis = new Lenis(config);
     this.isInitialized = true;
-
-    // Start the animation loop
-    this.raf();
 
     // Add scroll event listener for other animations
     this.lenis.on('scroll', (e) => {
@@ -46,12 +50,12 @@ class SmoothScroll {
   /**
    * Animation frame loop for Lenis
    */
-  raf(time) {
-    if (this.lenis) {
-      this.lenis.raf(time);
-    }
-    requestAnimationFrame((time) => this.raf(time));
-  }
+  // raf(time) {
+  //   if (this.lenis) {
+  //     this.lenis.raf(time);
+  //   }
+  //   requestAnimationFrame((time) => this.raf(time));
+  // }
 
   /**
    * Scroll event handler - can be extended for other animations

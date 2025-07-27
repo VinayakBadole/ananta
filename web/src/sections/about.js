@@ -89,17 +89,26 @@ class AboutSection {
   }
   
   initScrollTriggers() {
-    // Main section entrance animation
-    const tl = gsap.timeline({
+    // Create a single timeline for all section animations to prevent conflicts
+    const sectionTl = gsap.timeline({
       scrollTrigger: {
         trigger: this.section,
         start: "top 80%",
         end: "bottom 20%",
-        toggleActions: "play none none reverse"
+        toggleActions: "play none none reverse",
+        onEnter: () => {
+          // Trigger all animations in sequence to prevent jitter
+          this.animateSectionElements()
+        }
       }
     })
     
-    // Animate elements with data-animate attributes
+    // Store animation for cleanup
+    this.animations.push(sectionTl)
+  }
+  
+  animateSectionElements() {
+    // Animate elements with data-animate attributes in sequence
     this.elements.animatedElements.forEach((element, index) => {
       const animationType = element.dataset.animate
       const delay = parseFloat(element.dataset.delay) || 0
@@ -109,82 +118,82 @@ class AboutSection {
         // Set initial state
         gsap.set(element, preset.from)
         
-        // Create scroll trigger for each element
-        ScrollTrigger.create({
-          trigger: element,
-          start: "top 85%",
-          onEnter: () => {
-            gsap.to(element, {
-              ...preset.to,
-              duration: preset.duration || 1.2,
-              delay: delay,
-              ease: preset.ease,
-              repeat: preset.repeat,
-              yoyo: preset.yoyo
-            })
-          }
+        // Animate with staggered delay to prevent jitter
+        gsap.to(element, {
+          ...preset.to,
+          duration: preset.duration || 1.2,
+          delay: delay + (index * 0.1), // Stagger animations
+          ease: preset.ease,
+          repeat: preset.repeat,
+          yoyo: preset.yoyo
         })
       }
     })
-    
-    // Store animation for cleanup
-    this.animations.push(tl)
   }
   
   initParallaxEffects() {
-    // Background parallax
+    // Background parallax - optimized for performance
     if (this.elements.parallaxBg) {
       gsap.to(this.elements.parallaxBg, {
-        yPercent: -20,
+        yPercent: -15, // Reduced from -20 for smoother performance
         ease: "none",
         scrollTrigger: {
           trigger: this.section,
           start: "top bottom",
           end: "bottom top",
-          scrub: 1
+          scrub: 0.5 // Reduced from 1 for smoother performance
         }
       })
     }
     
-    // Individual parallax elements
-    this.elements.parallaxElements.forEach(element => {
-      const speed = parseFloat(element.dataset.parallaxElement) || 0.1
+    // Individual parallax elements - optimized
+    this.elements.parallaxElements.forEach((element, index) => {
+      const speed = parseFloat(element.dataset.parallaxElement) || 0.05 // Reduced default speed
       
       gsap.to(element, {
-        yPercent: -50 * speed,
+        yPercent: -30 * speed, // Reduced from -50 for smoother performance
         ease: "none",
         scrollTrigger: {
-          trigger: element,
+          trigger: this.section, // Use section as trigger instead of individual elements
           start: "top bottom",
           end: "bottom top",
-          scrub: 1
+          scrub: 0.5 // Reduced for smoother performance
         }
       })
     })
     
-    // Image hover parallax effect
+    // Image hover parallax effect - optimized
     if (this.elements.fadeImg) {
       const imageContainer = this.elements.fadeImg.closest('.group')
       
       if (imageContainer) {
+        let isHovering = false
+        
+        imageContainer.addEventListener('mouseenter', () => {
+          isHovering = true
+        })
+        
         imageContainer.addEventListener('mousemove', (e) => {
+          if (!isHovering) return
+          
           const rect = imageContainer.getBoundingClientRect()
           const x = (e.clientX - rect.left) / rect.width - 0.5
           const y = (e.clientY - rect.top) / rect.height - 0.5
           
           gsap.to(this.elements.fadeImg, {
-            x: x * 20,
-            y: y * 20,
-            duration: 0.3,
+            x: x * 15, // Reduced from 20 for smoother performance
+            y: y * 15, // Reduced from 20 for smoother performance
+            duration: 0.4, // Increased from 0.3 for smoother performance
             ease: "power2.out"
           })
         })
         
         imageContainer.addEventListener('mouseleave', () => {
+          isHovering = false
           gsap.to(this.elements.fadeImg, {
             x: 0,
             y: 0,
-            duration: 0.5,
+            duration: 0.6, // Increased from 0.5 for smoother performance
             ease: "power2.out"
           })
         })
@@ -234,30 +243,39 @@ class AboutSection {
   }
   
   initFeatureCards() {
+    // Set initial states for all cards
     this.elements.featureCards.forEach((card, index) => {
-      // Staggered entrance animation
       gsap.set(card, { 
         opacity: 0, 
         y: 40,
         scale: 0.9
       })
-      
-      ScrollTrigger.create({
-        trigger: card,
-        start: "top 85%",
+    })
+    
+    // Create a single animation for all feature cards to prevent jitter
+    const featureCardsTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: this.section,
+        start: "top 70%",
         onEnter: () => {
-          gsap.to(card, {
+          // Animate all cards in sequence
+          gsap.to(this.elements.featureCards, {
             opacity: 1,
             y: 0,
             scale: 1,
             duration: 0.8,
-            delay: index * 0.1,
+            stagger: 0.15, // Stagger cards to prevent jitter
             ease: "back.out(1.7)"
           })
         }
-      })
-      
-      // Hover interactions with luxury micro-animations
+      }
+    })
+    
+    // Store timeline for cleanup
+    this.animations.push(featureCardsTl)
+    
+    // Add hover interactions (these don't cause jitter)
+    this.elements.featureCards.forEach((card) => {
       card.addEventListener('mouseenter', () => {
         gsap.to(card, {
           y: -8,

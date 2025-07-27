@@ -35,6 +35,12 @@ class DualBrandLogoMask {
     this.setupEventListeners()
     this.setupDualBrandTimeline()
     this.startEntrySequence()
+
+    // Prevent scrolling (native and Lenis)
+    document.body.style.overflow = 'hidden'
+    if (window.AnantaApp && window.AnantaApp.lenis) {
+      window.AnantaApp.lenis.stop()
+    }
     
     console.log('🎭 Dual Brand Logo Mask initialized')
   }
@@ -175,6 +181,17 @@ class DualBrandLogoMask {
   }
 
   setupDualBrandTimeline() {
+    // Add will-change for performance before animation
+    const willChangeEls = [
+      '.expanding-circle',
+      '.ananta-container',
+      '.global-one-container'
+    ];
+    willChangeEls.forEach(sel => {
+      const el = document.querySelector(sel);
+      if (el) el.style.willChange = 'transform, opacity';
+    });
+
     this.timeline = gsap.timeline({
       onComplete: () => this.onTimelineComplete()
     })
@@ -214,15 +231,15 @@ class DualBrandLogoMask {
         opacity: 1,
         scale: 1,
         rotation: 0,
-        duration: 1.2,
+        duration: 1.8,
         ease: "back.out(1.7)"
       }, "-=0.4")
       .to('.company-text', {
         opacity: 1,
-        y: 0,
+        y: -200,
         duration: 0.8,
         ease: "power2.out"
-      }, "-=0.6")
+      }, "-=0.8")
       
       // Hold for brand recognition
       .to({}, { duration: 1.8 })
@@ -230,11 +247,11 @@ class DualBrandLogoMask {
       // Phase 2: "Presents" text
       .to('.presents-text', {
         opacity: 1,
-        y: 0,
+        y: -200,
         duration: 0.8,
         ease: "power2.out",
         onStart: () => { this.currentPhase = 'presents' }
-      })
+      },"-=1.4  ")
       
       // Hold presents
       .to({}, { duration: 1.2 })
@@ -284,6 +301,17 @@ class DualBrandLogoMask {
 
   onTimelineComplete() {
     this.isAnimating = false
+
+    // Remove will-change after animation
+    const willChangeEls = [
+      '.expanding-circle',
+      '.ananta-container',
+      '.global-one-container'
+    ];
+    willChangeEls.forEach(sel => {
+      const el = document.querySelector(sel);
+      if (el) el.style.willChange = '';
+    });
     
     // Show cursor only when Ananta phase is ready for interaction
     if (this.customCursor) {
@@ -367,21 +395,28 @@ class DualBrandLogoMask {
     if (this.maskContainer && this.maskContainer.parentNode) {
       this.maskContainer.parentNode.removeChild(this.maskContainer)
     }
-    
-    // Restore scrolling
+
+    // Restore scrolling (native and Lenis)
     document.body.style.overflow = 'auto'
-    
+    setTimeout(() => {
+      if (window.AnantaApp && window.AnantaApp.lenis) {
+        window.AnantaApp.lenis.start()
+        window.AnantaApp.lenis.scrollTo('#hero', { duration: 1 })
+      }
+      window.scrollTo(0, 0)
+    }, 50) // Add small delay for smoother transition
+
     // Remove event listeners
     window.removeEventListener('wheel', this.handleScroll)
     window.removeEventListener('touchmove', this.handleScroll)
     document.removeEventListener('mousemove', this.handleMouseMove)
     document.removeEventListener('mousedown', this.handleMouseDown)
     document.removeEventListener('mouseup', this.handleMouseUp)
-    
+
     // Mark as completed
     this.hasCompleted = true
     this.currentPhase = 'complete'
-    
+
     console.log('🎭 Dual brand logo mask cleanup complete')
   }
 

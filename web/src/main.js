@@ -111,15 +111,24 @@ class AnantaApp {
   initSmoothScroll() {
     // Initialize our smooth scroll system
     this.lenis = smoothScroll.init({
-      duration: 1.2,
+      duration: 0.8,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       gestureDirection: 'vertical',
       smooth: true,
-      mouseMultiplier: 1,
+      mouseMultiplier: 1.2,
       smoothTouch: false,
       touchMultiplier: 2,
       infinite: false,
+      lerp: 0.35,
+      wheelMultiplier: 1.2,
+      normalizeWheel: true,
+      // Anti-jitter settings
+      syncTouch: true,
+      syncTouchLerp: 0.1,
+      touchInertiaMultiplier: 3,
+
+      
     })
     
     // Connect Lenis with GSAP ScrollTrigger

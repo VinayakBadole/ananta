@@ -41,7 +41,7 @@ class HeroSection {
     }
 
     this.createHeroStructure()
-    this.initVideoBackground()
+    // this.initVideoBackground()
     this.initParallaxEffects()
     this.initLuxuryOverlays()
     this.bindEvents()
